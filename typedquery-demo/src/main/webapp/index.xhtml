@@ -10,6 +10,9 @@
     <h:body>
         <h:form id="form">
             <h:dataTable value="#{index.customers()}" var="customer" styleClass="table">
+                <f:facet name="header">
+                    <h:outputText value="Customers list" />
+                </f:facet>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Name" />
@@ -21,6 +24,23 @@
                         <h:outputText value="E-mail" />
                     </f:facet>
                     <h:outputText value="#{customer.email}"/>
+                </h:column>
+            </h:dataTable>
+            <h:dataTable value="#{index.products()}" var="product" styleClass="table">
+                <f:facet name="header">
+                    <h:outputText value="Products list" />
+                </f:facet>
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="Description" />
+                    </f:facet>
+                    <h:outputText value="#{product.description}"/>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="Availability" />
+                    </f:facet>
+                    <h:outputText value="#{product.available}"/>
                 </h:column>
             </h:dataTable>
         </h:form>
