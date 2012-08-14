@@ -5,3 +5,7 @@
 *.war
 *.ear
 /typedquery-demo/target/
+/typedquery-demo-web/target/
+/typedquery-demo/typedquery-demo-web/target/
+/typedquery-demo/typedquery-demo-annotations/target/
+/typedquery-demo/typedquery-demo-processors/target/
