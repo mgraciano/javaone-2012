@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Michael Nascimento Santos & Michel Graciano.
  * All rights reserved.
  *

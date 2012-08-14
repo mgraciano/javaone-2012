@@ -32,9 +32,11 @@
                     <useDefaultMapping>true</useDefaultMapping>
                     <encoding>UTF-8</encoding>
                     <strictCheck>true</strictCheck>
+                    <headerDefinitions>
+                        <headerDefinition>../javadoc_header_style.xml</headerDefinition>
+                    </headerDefinitions>
                     <includes>
                         <include>**/src/**</include>
-                        <include>**/test/**</include>
                     </includes>
                     <excludes>
                         <exclude>**/target/**</exclude>
