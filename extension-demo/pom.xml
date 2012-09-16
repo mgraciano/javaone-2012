@@ -1,13 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>javaone-2012</groupId>
-  <artifactId>extension-demo</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>CDI Portable Extensions Demo</name>
-  <modules>
-    <module>extension-demo-extensions</module>
-    <module>extension-demo-web</module>
-  </modules>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javaone-2012</groupId>
+    <artifactId>extension-demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>CDI Portable Extensions Demo</name>
+    <url>https://github.com/mgraciano/javaone-2012</url>
+
+    <modules>
+        <module>extension-demo-extensions</module>
+        <module>extension-demo-web</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <inherited>false</inherited>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>${basedir}/../bsd-header.txt</header>
+                    <quiet>false</quiet>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>true</aggregate>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <encoding>UTF-8</encoding>
+                    <strictCheck>true</strictCheck>
+                    <headerDefinitions>
+                        <headerDefinition>../javadoc_header_style.xml</headerDefinition>
+                    </headerDefinitions>
+                    <includes>
+                        <include>**/src/**</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/.clover/**</exclude>
+                    </excludes>
+                    <properties>
+                        <year>2012</year>
+                    </properties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
