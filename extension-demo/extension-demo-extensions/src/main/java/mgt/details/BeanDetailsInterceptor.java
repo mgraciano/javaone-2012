@@ -40,10 +40,14 @@ import javax.interceptor.InvocationContext;
 public class BeanDetailsInterceptor {
     @AroundInvoke
     public Object intercept(final InvocationContext ctx) throws Exception {
+        final long startTime = System.nanoTime();
+        final Object obj = ctx.proceed();
+        final long delta = System.nanoTime() - startTime;
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).
-                warning(">" + ctx.getTarget().toString());
+                warning(ctx.getMethod().toString() + ": " + delta + " ns.");
+
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).
-                warning(">" + ctx.getMethod().toString());
-        return ctx.proceed();
+                warning(this.toString());
+        return obj;
     }
 }
