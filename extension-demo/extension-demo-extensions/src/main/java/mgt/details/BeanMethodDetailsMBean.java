@@ -1,4 +1,4 @@
-package mgt.qualifiers;
+package mgt.details;
 
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -17,36 +17,44 @@ import javax.management.MBeanOperationInfo;
 import javax.management.ReflectionException;
 import javax.management.RuntimeOperationsException;
 
-public class QualifierMBean implements DynamicMBean {
-    public static final String BEANS_COUNT = "Number of annotated beans";
-    public static final String INJECTION_POINTS_COUNT =
-            "Number of injection points";
+public class BeanMethodDetailsMBean implements DynamicMBean {
+    public static final String CALL_NUMBERS = "Number of calls";
+    public static final String CALL_TIME_AVERAGE = "Average call time";
+    public static final String CALL_TIME_MAX = "Maximum call time";
+    public static final String CALL_TIME_MIN = "Minimum call time";
     private String className = this.getClass().getName();
     private MBeanInfo mbeanInfo = null;
-    private int beansCount = 0;
-    private int injectionPointsCount = 0;
+    private int callNumbers = 0;
+    private int callTimeAverage = 0;
+    private int callTimeMaximum = 0;
+    private int callTimeMinimum = 0;
 
-    public QualifierMBean() {
+    public BeanMethodDetailsMBean() {
         buildDynamicMBeanInfo();
     }
 
     private void buildDynamicMBeanInfo() {
         final String description = "Detailed overview of this qualifier.";
 
-        final MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[2];
+        final MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[4];
         final MBeanConstructorInfo[] constructors = new MBeanConstructorInfo[1];
         final MBeanNotificationInfo[] notifications =
                 new MBeanNotificationInfo[0];
         final MBeanOperationInfo[] operations = new MBeanOperationInfo[0];
 
-        attributes[0] = new MBeanAttributeInfo(BEANS_COUNT, Integer.class.
-                getName(), "How many beans are annotated with this qualifier.",
+        attributes[0] = new MBeanAttributeInfo(CALL_NUMBERS, Integer.class.
+                getName(), "How many calls this methods had.",
                 true, false, false);
         attributes[1] =
-                new MBeanAttributeInfo(INJECTION_POINTS_COUNT,
-                Integer.class.getName(),
-                "How many injection point do we have with this qualifier.", true,
-                false, false);
+                new MBeanAttributeInfo(CALL_TIME_AVERAGE, Integer.class.
+                getName(), "Average time for calls on this method.", true, false,
+                false);
+        attributes[2] =
+                new MBeanAttributeInfo(CALL_TIME_MAX, Integer.class.getName(),
+                "Maximum time for calls on this method.", true, false, false);
+        attributes[3] =
+                new MBeanAttributeInfo(CALL_TIME_MIN, Integer.class.getName(),
+                "Minimum time for calls on this method.", true, false, false);
 
         constructors[0] = new MBeanConstructorInfo("Default constructor.",
                 this.getClass().getConstructors()[0]);
@@ -125,10 +133,14 @@ public class QualifierMBean implements DynamicMBean {
         }
 
         switch (name) {
-            case BEANS_COUNT:
-                return beansCount;
-            case INJECTION_POINTS_COUNT:
-                return injectionPointsCount;
+            case CALL_NUMBERS:
+                return callNumbers;
+            case CALL_TIME_AVERAGE:
+                return callTimeAverage;
+            case CALL_TIME_MAX:
+                return callTimeMaximum;
+            case CALL_TIME_MIN:
+                return callTimeMinimum;
             default:
                 throw new AttributeNotFoundException("Cannot find " + name +
                         " attribute in " + className);
@@ -146,13 +158,5 @@ public class QualifierMBean implements DynamicMBean {
     public Object invoke(final String operationName, final Object params[],
             final String signature[]) throws MBeanException, ReflectionException {
         return null;
-    }
-
-    public void incrementBeansCount() {
-        beansCount++;
-    }
-
-    public void incrementInjectionPointsCount() {
-        injectionPointsCount++;
     }
 }

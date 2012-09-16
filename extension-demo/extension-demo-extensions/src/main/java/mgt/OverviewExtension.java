@@ -36,7 +36,8 @@ public class OverviewExtension implements Extension {
             if (bm.isQualifier(annotationType)) {
                 QualifierMBean qmb = qualifiers.get(annotationType);
                 if (qmb == null) {
-                    qualifiers.put(annotationType, qmb = new QualifierMBean());
+                    qualifiers.put(annotationType, qmb = new QualifierMBean(
+                            annotationType));
                 }
 
                 qmb.incrementBeansCount();
@@ -54,7 +55,8 @@ public class OverviewExtension implements Extension {
                         annotationType();
                 QualifierMBean qmb = qualifiers.get(annotationType);
                 if (qmb == null) {
-                    qualifiers.put(annotationType, qmb = new QualifierMBean());
+                    qualifiers.put(annotationType, qmb = new QualifierMBean(
+                            annotationType));
                 }
 
                 qmb.incrementInjectionPointsCount();
