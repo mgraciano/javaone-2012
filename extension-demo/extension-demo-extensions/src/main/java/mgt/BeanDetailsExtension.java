@@ -37,7 +37,7 @@ import javax.enterprise.util.AnnotationLiteral;
 import mgt.details.BeanDetailsInterceptorBinding;
 import org.jboss.solder.reflection.annotated.AnnotatedTypeBuilder;
 
-public class DetailExtension implements Extension {
+public class BeanDetailsExtension implements Extension {
     <T> void processAnnotatedType(@Observes final ProcessAnnotatedType<T> pat) {
         class BeanDetailsInterceptorBindingLiteral extends AnnotationLiteral<BeanDetailsInterceptorBinding>
                 implements BeanDetailsInterceptorBinding {
