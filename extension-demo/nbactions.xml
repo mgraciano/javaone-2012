@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>CUSTOM-license-format</actionName>
+        <displayName>Format license headers</displayName>
+        <goals>
+            <goal>license:format</goal>
+        </goals>
+    </action>
+</actions>
