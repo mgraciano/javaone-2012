@@ -15,3 +15,5 @@
 /extension-demo/extension-demo-web/dist/
 /extension-demo/extension-demo-extensions/dist/
 /extension-demo/extension-demo-extensions/build/
+/extension-demo/extension-demo-extensions/target/
+/extension-demo/extension-demo-web/target/
