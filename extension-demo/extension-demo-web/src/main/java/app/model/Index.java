@@ -31,6 +31,7 @@
 package app.model;
 
 import app.business.Greeting;
+import app.business.Informal;
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 
@@ -38,11 +39,16 @@ import javax.inject.Inject;
 public class Index {
     @Inject
     Greeting greeting;
+    @Inject
+    @Informal
+    Greeting informalGreeting;
     String userName;
     String message;
+    String informalMessage;
 
     public void sayHello() {
         message = greeting.sayHelloToUser(userName);
+        informalMessage = informalGreeting.sayHelloToUser(userName);
     }
 
     public String getUserName() {
@@ -55,5 +61,9 @@ public class Index {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getInformalMessage() {
+        return informalMessage;
     }
 }

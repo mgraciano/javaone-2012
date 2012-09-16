@@ -32,7 +32,12 @@ package app.business;
 
 @Informal
 public class InformalGreeting extends Greeting {
+    @Override
     public String sayHelloToUser(final String user) {
+        try {
+            Thread.sleep(3);
+        } catch (InterruptedException ex) {
+        }
         return "Hi " + user;
     }
 }

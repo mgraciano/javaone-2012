@@ -32,6 +32,10 @@ package app.business;
 
 public class Greeting {
     public String sayHelloToUser(final String user) {
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException ex) {
+        }
         return "Hello " + user;
     }
 }
