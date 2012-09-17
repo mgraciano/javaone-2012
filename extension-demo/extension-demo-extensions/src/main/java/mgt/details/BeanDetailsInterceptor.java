@@ -30,7 +30,7 @@
  */
 package mgt.details;
 
-import java.util.logging.Logger;
+import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -38,16 +38,11 @@ import javax.interceptor.InvocationContext;
 @Interceptor
 @BeanDetailsInterceptorBinding
 public class BeanDetailsInterceptor {
+    @Inject
+    BeanDetailsController controller;
+
     @AroundInvoke
     public Object intercept(final InvocationContext ctx) throws Exception {
-        final long startTime = System.nanoTime();
-        final Object obj = ctx.proceed();
-        final long delta = System.nanoTime() - startTime;
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).
-                warning(ctx.getMethod().toString() + ": " + delta + " ns.");
-
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).
-                warning(this.toString());
-        return obj;
+        return controller.proceedAndRegister(ctx);
     }
 }

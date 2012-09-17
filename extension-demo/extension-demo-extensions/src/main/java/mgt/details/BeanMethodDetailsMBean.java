@@ -55,16 +55,17 @@ public class BeanMethodDetailsMBean implements DynamicMBean {
     private String className = this.getClass().getName();
     private MBeanInfo mbeanInfo = null;
     private int callNumbers = 0;
-    private int callTimeAverage = 0;
-    private int callTimeMaximum = 0;
-    private int callTimeMinimum = 0;
+    private long callTimeTotal = 0;
+    private long callTimeAverage = 0;
+    private long callTimeMaximum = 0;
+    private long callTimeMinimum = 0;
 
     public BeanMethodDetailsMBean() {
         buildDynamicMBeanInfo();
     }
 
     private void buildDynamicMBeanInfo() {
-        final String description = "Detailed overview of this qualifier.";
+        final String description = "Detailed overview of this method.";
 
         final MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[4];
         final MBeanConstructorInfo[] constructors = new MBeanConstructorInfo[1];
@@ -72,18 +73,18 @@ public class BeanMethodDetailsMBean implements DynamicMBean {
                 new MBeanNotificationInfo[0];
         final MBeanOperationInfo[] operations = new MBeanOperationInfo[0];
 
-        attributes[0] = new MBeanAttributeInfo(CALL_NUMBERS, Integer.class.
+        attributes[0] = new MBeanAttributeInfo(CALL_NUMBERS, Long.class.
                 getName(), "How many calls this methods had.",
                 true, false, false);
         attributes[1] =
-                new MBeanAttributeInfo(CALL_TIME_AVERAGE, Integer.class.
+                new MBeanAttributeInfo(CALL_TIME_AVERAGE, Long.class.
                 getName(), "Average time for calls on this method.", true, false,
                 false);
         attributes[2] =
-                new MBeanAttributeInfo(CALL_TIME_MAX, Integer.class.getName(),
+                new MBeanAttributeInfo(CALL_TIME_MAX, Long.class.getName(),
                 "Maximum time for calls on this method.", true, false, false);
         attributes[3] =
-                new MBeanAttributeInfo(CALL_TIME_MIN, Integer.class.getName(),
+                new MBeanAttributeInfo(CALL_TIME_MIN, Long.class.getName(),
                 "Minimum time for calls on this method.", true, false, false);
 
         constructors[0] = new MBeanConstructorInfo("Default constructor.",
@@ -188,5 +189,19 @@ public class BeanMethodDetailsMBean implements DynamicMBean {
     public Object invoke(final String operationName, final Object params[],
             final String signature[]) throws MBeanException, ReflectionException {
         return null;
+    }
+
+    void registerCall(final long callTime) {
+        callNumbers++;
+        callTimeTotal += callTime;
+        callTimeAverage = callTimeTotal / callNumbers;
+
+        if (callTime > callTimeMaximum) {
+            callTimeMaximum = callTime;
+        }
+
+        if (callTimeMinimum == 0 || callTime < callTimeMinimum) {
+            callTimeMinimum = callTime;
+        }
     }
 }

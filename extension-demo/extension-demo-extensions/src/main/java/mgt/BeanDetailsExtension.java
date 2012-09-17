@@ -30,10 +30,15 @@
  */
 package mgt;
 
+import java.lang.management.ManagementFactory;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.BeforeShutdown;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.util.AnnotationLiteral;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import mgt.details.BeanDetailsController;
 import mgt.details.BeanDetailsInterceptorBinding;
 import org.jboss.solder.reflection.annotated.AnnotatedTypeBuilder;
 
@@ -47,5 +52,13 @@ public class BeanDetailsExtension implements Extension {
                 readFromType(pat.getAnnotatedType(), true).
                 addToClass(new BeanDetailsInterceptorBindingLiteral());
         pat.setAnnotatedType(builder.create());
+    }
+
+    void beforeShutdown(@Observes BeforeShutdown bs,
+            BeanDetailsController controller) throws Exception {
+        final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        for (ObjectName objectName : controller.getRegisteredObjectNames()) {
+            mbs.unregisterMBean(objectName);
+        }
     }
 }
