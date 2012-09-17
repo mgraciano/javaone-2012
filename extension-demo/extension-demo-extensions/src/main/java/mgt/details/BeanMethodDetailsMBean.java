@@ -49,6 +49,7 @@ import javax.management.RuntimeOperationsException;
 
 public class BeanMethodDetailsMBean implements DynamicMBean {
     public static final String CALL_NUMBERS = "Number of calls";
+    public static final String CALL_TIME_TOTAL = "Total call time";
     public static final String CALL_TIME_AVERAGE = "Average call time";
     public static final String CALL_TIME_MAX = "Maximum call time";
     public static final String CALL_TIME_MIN = "Minimum call time";
@@ -67,7 +68,7 @@ public class BeanMethodDetailsMBean implements DynamicMBean {
     private void buildDynamicMBeanInfo() {
         final String description = "Detailed overview of this method.";
 
-        final MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[4];
+        final MBeanAttributeInfo[] attributes = new MBeanAttributeInfo[5];
         final MBeanConstructorInfo[] constructors = new MBeanConstructorInfo[1];
         final MBeanNotificationInfo[] notifications =
                 new MBeanNotificationInfo[0];
@@ -86,6 +87,9 @@ public class BeanMethodDetailsMBean implements DynamicMBean {
         attributes[3] =
                 new MBeanAttributeInfo(CALL_TIME_MIN, Long.class.getName(),
                 "Minimum time for calls on this method.", true, false, false);
+        attributes[4] =
+                new MBeanAttributeInfo(CALL_TIME_TOTAL, Long.class.getName(),
+                "Total time for calls on this method.", true, false, false);
 
         constructors[0] = new MBeanConstructorInfo("Default constructor.",
                 this.getClass().getConstructors()[0]);
@@ -166,6 +170,8 @@ public class BeanMethodDetailsMBean implements DynamicMBean {
         switch (name) {
             case CALL_NUMBERS:
                 return callNumbers;
+            case CALL_TIME_TOTAL:
+                return callTimeTotal;
             case CALL_TIME_AVERAGE:
                 return callTimeAverage;
             case CALL_TIME_MAX:
