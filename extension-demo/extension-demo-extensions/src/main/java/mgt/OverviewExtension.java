@@ -31,7 +31,6 @@
 package mgt;
 
 import java.lang.annotation.Annotation;
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -94,8 +93,8 @@ public class OverviewExtension implements Extension {
         }
     }
 
-    void afterDeploymentValidation(@Observes final AfterDeploymentValidation adv)
-            throws Exception {
+    void afterDeploymentValidation(@Observes final AfterDeploymentValidation adv,
+            final MBeanServer mbs) throws Exception {
         final CDIDeploymentOverview overviewBean = new CDIDeploymentOverview();
         final ObjectName overviewBeanName = new ObjectName(
                 "cdi-demo:type=monitoring,name=overview");
@@ -103,7 +102,6 @@ public class OverviewExtension implements Extension {
         overviewBean.setQualifiersCount(qualifiers.size());
         overviewBean.setInterceptorsBindingCount(interceptorsBinding.size());
 
-        final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         mbs.registerMBean(overviewBean, overviewBeanName);
         registeredObjectNames.add(overviewBeanName);
 
@@ -119,8 +117,8 @@ public class OverviewExtension implements Extension {
         }
     }
 
-    void beforeShutdown(@Observes BeforeShutdown bs) throws Exception {
-        final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+    void beforeShutdown(@Observes final BeforeShutdown bs, final MBeanServer mbs)
+            throws Exception {
         for (ObjectName objectName : registeredObjectNames) {
             mbs.unregisterMBean(objectName);
         }

@@ -30,13 +30,13 @@
  */
 package mgt.details;
 
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.interceptor.InvocationContext;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -51,6 +51,8 @@ public class BeanDetailsController {
             "cdi-demo:type=monitoring,name=beans";
     private final Set<ObjectName> registeredObjectNames = new HashSet<>();
     private final Map<Method, BeanMethodDetailsMBean> details = new HashMap<>();
+    @Inject
+    MBeanServer mbs;
 
     private ObjectName createObjectName(final Method method) throws
             MalformedObjectNameException {
@@ -66,7 +68,6 @@ public class BeanDetailsController {
         if (mBean == null) {
             mBean = new BeanMethodDetailsMBean();
             final ObjectName bmbName = createObjectName(method);
-            final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
             mbs.registerMBean(mBean, bmbName);
 
             details.put(method, mBean);
