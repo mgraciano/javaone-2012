@@ -31,9 +31,14 @@
 package j1.processors;
 
 import j1.ci.QueryName;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -49,26 +54,23 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.TypedQuery;
 import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 
 @SupportedAnnotationTypes({"javax.inject.Inject"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class InjectedTypedQueryProcessor extends AbstractProcessor {
 
+    private final Set<String> namedQueries = new HashSet<>();
+
     @Override
-    public boolean process(Set<? extends TypeElement> annotations,
-            RoundEnvironment env) {
+    public boolean process(final Set<? extends TypeElement> annotations,
+            final RoundEnvironment env) {
         if (env.processingOver()) {
             return false;
         }
 
-        final Set<String> namedQueries = new HashSet<String>();
-        for (Element element : env.getElementsAnnotatedWith(NamedQueries.class)) {
-            final NamedQueries ann = element.getAnnotation(NamedQueries.class);
-            for (NamedQuery namedQuery : ann.value()) {
-                namedQueries.add(namedQuery.name());
-            }
-        }
-        System.out.println("Named queries found: " + namedQueries.size());
+        processCache(env);
 
         for (Element element : env.getElementsAnnotatedWith(QueryName.class)) {
             final QueryName queryName = element.getAnnotation(QueryName.class);
@@ -106,5 +108,39 @@ public class InjectedTypedQueryProcessor extends AbstractProcessor {
         }
 
         return false;
+    }
+
+    private void processCache(final RoundEnvironment env) {
+        final Filer filer = processingEnv.getFiler();
+
+        final String resourceName = "cache_query_names";
+        try {
+            final FileObject resource = filer.getResource(
+                    StandardLocation.SOURCE_OUTPUT, "", resourceName);
+            try (BufferedReader reader = new BufferedReader(resource.
+                    openReader(true))) {
+                String line = reader.readLine();
+                while (line != null) {
+                    namedQueries.add(line);
+                    line = reader.readLine();
+                }
+            } catch (FileNotFoundException ex) {
+            }
+
+            for (Element element : env.getElementsAnnotatedWith(NamedQueries.class)) {
+                final NamedQueries ann = element.getAnnotation(NamedQueries.class);
+                for (NamedQuery namedQuery : ann.value()) {
+                    namedQueries.add(namedQuery.name());
+                }
+            }
+
+            try (Writer writer = filer.createResource(
+                    StandardLocation.SOURCE_OUTPUT, "", resourceName).openWriter()) {
+                for (String string : namedQueries) {
+                    writer.append(string).append("\n");
+                }
+            }
+        } catch (IOException ex) {
+        }
     }
 }
