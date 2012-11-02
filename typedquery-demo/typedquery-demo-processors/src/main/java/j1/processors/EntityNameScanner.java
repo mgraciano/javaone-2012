@@ -32,9 +32,9 @@ package j1.processors;
 
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.util.ElementScanner6;
+import javax.lang.model.util.ElementScanner7;
 
-public class EntityNameScanner extends ElementScanner6<String, Void> {
+public class EntityNameScanner extends ElementScanner7<String, Void> {
 
     @Override
     public String visitVariable(VariableElement e, Void m) {

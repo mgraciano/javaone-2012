@@ -51,7 +51,7 @@ import javax.persistence.TypedQuery;
 import javax.tools.Diagnostic;
 
 @SupportedAnnotationTypes({"javax.inject.Inject"})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class InjectedTypedQueryProcessor extends AbstractProcessor {
 
     @Override
