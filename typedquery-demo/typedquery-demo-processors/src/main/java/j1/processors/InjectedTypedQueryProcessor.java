@@ -30,12 +30,18 @@
  */
 package j1.processors;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import j1.ci.QueryName;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -57,20 +63,76 @@ import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
-@SupportedAnnotationTypes({"javax.inject.Inject"})
+@SupportedAnnotationTypes({"javax.persistence.NamedQueries", "javax.inject.Inject"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class InjectedTypedQueryProcessor extends AbstractProcessor {
 
-    private final Set<String> namedQueries = new HashSet<>();
+    private static final String resourceName = "query_names_apt_cache";
+    //TODO: Needs further investigation why NetBeans editor had problems to read the cache
+    private static final Set<String> namedQueries = new HashSet<>();
+    //Using pretty printing for demonstration purpose
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private Map<String, Set<String>> namedQueriesByClass;
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations,
             final RoundEnvironment env) {
-        if (env.processingOver()) {
+        if (env.errorRaised()) {
             return false;
         }
 
-        processCache(env);
+        readCache();
+        if (env.processingOver()) {
+            writeCache();
+        } else {
+            handleProcess(annotations, env);
+        }
+        return false;
+    }
+
+    private void readCache() {
+        if (namedQueriesByClass == null) {
+            namedQueriesByClass = new HashMap<>();
+            final Filer filer = processingEnv.getFiler();
+            try {
+                final FileObject resource = filer.getResource(
+                        StandardLocation.SOURCE_OUTPUT, "", resourceName);
+                namedQueriesByClass.putAll(gson.<Map<String, Set<String>>>fromJson(
+                        resource.openReader(true),
+                        new TypeToken<Map<String, Set<String>>>() {
+                }.getType()));
+            } catch (FileNotFoundException ex) {
+                /*
+                 * Suppressed exception because it gonna happen always the clean
+                 * target is executed before the build
+                 */
+            } catch (IOException ex) {
+                final StringWriter sw = new StringWriter();
+                ex.printStackTrace(new PrintWriter(sw));
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
+            }
+        }
+    }
+
+    private void writeCache() {
+        final Filer filer = processingEnv.getFiler();
+
+        try (Writer w = filer.createResource(
+                StandardLocation.SOURCE_OUTPUT, "", resourceName).openWriter()) {
+            w.append(gson.toJson(namedQueriesByClass));
+            w.flush();
+        } catch (IOException ex) {
+            final StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    "Failed to write to " + resourceName + ": " + ex.toString()
+                    + "\n" + sw.toString());
+        }
+    }
+
+    private void handleProcess(final Set<? extends TypeElement> annotations,
+            final RoundEnvironment env) {
+        updateCachedReferences(env);
 
         for (Element element : env.getElementsAnnotatedWith(QueryName.class)) {
             final QueryName queryName = element.getAnnotation(QueryName.class);
@@ -106,46 +168,21 @@ public class InjectedTypedQueryProcessor extends AbstractProcessor {
                         "Named query \'" + queryName + "\' not defined yet.", element);
             }
         }
-
-        return false;
     }
 
-    private void processCache(final RoundEnvironment env) {
-        final Filer filer = processingEnv.getFiler();
-
-        final String resourceName = "cache_query_names";
-        try {
-            final FileObject resource = filer.getResource(
-                    StandardLocation.SOURCE_OUTPUT, "", resourceName);
-            try (BufferedReader reader = new BufferedReader(resource.
-                    openReader(true))) {
-                String line = reader.readLine();
-                while (line != null) {
-                    namedQueries.add(line);
-                    line = reader.readLine();
-                }
-            } catch (FileNotFoundException ex) {
-                /*
-                 * Suppressed exception because it gonna happen always the clean
-                 * target is executed before the build
-                 */
+    private void updateCachedReferences(final RoundEnvironment env) {
+        for (Element element : env.getElementsAnnotatedWith(NamedQueries.class)) {
+            final Set<String> queryNames = new HashSet<>();
+            final NamedQueries ann = element.getAnnotation(NamedQueries.class);
+            for (NamedQuery namedQuery : ann.value()) {
+                queryNames.add(namedQuery.name());
             }
+            namedQueriesByClass.put(((TypeElement) element).
+                    getQualifiedName().toString(), queryNames);
+        }
 
-            for (Element element : env.getElementsAnnotatedWith(NamedQueries.class)) {
-                final NamedQueries ann = element.getAnnotation(NamedQueries.class);
-                for (NamedQuery namedQuery : ann.value()) {
-                    namedQueries.add(namedQuery.name());
-                }
-            }
-
-            try (Writer writer = filer.createResource(
-                    StandardLocation.SOURCE_OUTPUT, "", resourceName).openWriter()) {
-                for (String string : namedQueries) {
-                    writer.append(string).append("\n");
-                }
-            }
-        } catch (IOException ex) {
-//            TODO: Need more investigation about why FilerException is thrown when running inside NetBeans editor
+        for (Set<String> queryNanes : namedQueriesByClass.values()) {
+            namedQueries.addAll(queryNanes);
         }
     }
 }
