@@ -125,6 +125,10 @@ public class InjectedTypedQueryProcessor extends AbstractProcessor {
                     line = reader.readLine();
                 }
             } catch (FileNotFoundException ex) {
+                /*
+                 * Suppressed exception because it gonna happen always the clean
+                 * target is executed before the build
+                 */
             }
 
             for (Element element : env.getElementsAnnotatedWith(NamedQueries.class)) {
@@ -141,6 +145,7 @@ public class InjectedTypedQueryProcessor extends AbstractProcessor {
                 }
             }
         } catch (IOException ex) {
+//            TODO: Need more investigation about why FilerException is thrown when running inside NetBeans editor
         }
     }
 }
