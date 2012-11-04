@@ -15,5 +15,6 @@ Any value defined here will override the pom.xml file value but is only applicab
 -->
         <org-netbeans-modules-whitelist.whitelist-oracle>false</org-netbeans-modules-whitelist.whitelist-oracle>
         <org-netbeans-modules-projectapi.jsf_2e_language>Facelets</org-netbeans-modules-projectapi.jsf_2e_language>
+        <netbeans.compile.on.save>none</netbeans.compile.on.save>
     </properties>
 </project-shared-configuration>
