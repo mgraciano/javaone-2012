@@ -41,17 +41,21 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Completion;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.inject.Inject;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -63,7 +67,7 @@ import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
-@SupportedAnnotationTypes({"javax.persistence.NamedQueries", "javax.inject.Inject"})
+@SupportedAnnotationTypes({"javax.persistence.NamedQueries", "javax.inject.Inject", "j1.ci.QueryName"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class InjectedTypedQueryProcessor extends AbstractProcessor {
 
@@ -184,5 +188,34 @@ public class InjectedTypedQueryProcessor extends AbstractProcessor {
         for (Set<String> queryNanes : namedQueriesByClass.values()) {
             namedQueries.addAll(queryNanes);
         }
+    }
+
+    @Override
+    public Iterable<? extends Completion> getCompletions(final Element element,
+            final AnnotationMirror annotation, final ExecutableElement member,
+            final String userText) {
+        final Elements elements = processingEnv.getElementUtils();
+        final Types types = processingEnv.getTypeUtils();
+        if (!types.isSameType(types.erasure(annotation.getAnnotationType()),
+                types.erasure(elements.getTypeElement(QueryName.class.
+                getCanonicalName()).asType()))) {
+            return super.getCompletions(element, annotation, member, userText);
+        }
+
+        final Set<Completion> c = new LinkedHashSet<>(namedQueries.size());
+        for (final String namedQuery : namedQueries) {
+            c.add(new Completion() {
+                @Override
+                public String getValue() {
+                    return '\"' + namedQuery + '\"';
+                }
+
+                @Override
+                public String getMessage() {
+                    return null;
+                }
+            });
+        }
+        return c;
     }
 }
