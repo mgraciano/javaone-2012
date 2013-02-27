@@ -49,13 +49,14 @@ public class TypedQueryFactory {
         final Class<T> paramType = (Class<T>) type.getActualTypeArguments()[0];
 
         if (ip.getAnnotated().isAnnotationPresent(QueryName.class)) {
-            return em.createNamedQuery(queryNameFromAnnotation(ip), paramType);
+            return em.createNamedQuery(queryNameFromAnnotation(ip.getAnnotated().
+                    getAnnotation(QueryName.class)), paramType);
         }
         return em.createNamedQuery(queryNameFromField(ip, paramType), paramType);
     }
 
-    <T> String queryNameFromAnnotation(final InjectionPoint ip) {
-        return ip.getAnnotated().getAnnotation(QueryName.class).value();
+    <T extends QueryName> String queryNameFromAnnotation(final T ann) {
+        return ann.value();
     }
 
     <T> String queryNameFromField(final InjectionPoint ip,

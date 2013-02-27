@@ -41,10 +41,18 @@ import org.testng.annotations.Test;
 
 public class TypedQueryFactoryTest {
 
+    final TypedQueryFactory tqf = new TypedQueryFactory();
+
+    @Test
+    public void testQueryNameFromAnnotation() {
+        final QueryName mockedAnn = when(mock(QueryName.class).value()).
+                thenReturn("User.active", "User.inactive").getMock();
+        assertEquals(tqf.queryNameFromAnnotation(mockedAnn), "User.active");
+        assertEquals(tqf.queryNameFromAnnotation(mockedAnn), "User.inactive");
+    }
+
     @Test
     public void testQueryNameFromField() {
-        final TypedQueryFactory tqf = new TypedQueryFactory();
-
         final InjectionPoint mockedIp = mock(InjectionPoint.class);
         final Member mockedMember = mock(Member.class);
         when(mockedIp.getMember()).thenReturn(mockedMember);
