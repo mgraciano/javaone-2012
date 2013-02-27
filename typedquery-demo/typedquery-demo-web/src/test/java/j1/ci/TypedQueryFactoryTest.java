@@ -30,37 +30,30 @@
  */
 package j1.ci;
 
-import java.lang.reflect.ParameterizedType;
-import javax.enterprise.inject.Produces;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
+
+import j1.databeans.Customer;
+import j1.databeans.Product;
+import java.lang.reflect.Member;
 import javax.enterprise.inject.spi.InjectionPoint;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import org.testng.annotations.Test;
 
-public class TypedQueryFactory {
+public class TypedQueryFactoryTest {
 
-    @PersistenceContext
-    EntityManager em;
+    @Test
+    public void testQueryNameFromField() {
+        final TypedQueryFactory tqf = new TypedQueryFactory();
 
-    @Produces
-    public <T> TypedQuery<T> create(InjectionPoint ip) {
-        final ParameterizedType type = (ParameterizedType) ip.getType();
-        @SuppressWarnings("unchecked")
-        final Class<T> paramType = (Class<T>) type.getActualTypeArguments()[0];
-
-        if (ip.getAnnotated().isAnnotationPresent(QueryName.class)) {
-            return em.createNamedQuery(queryNameFromAnnotation(ip), paramType);
-        }
-        return em.createNamedQuery(queryNameFromField(ip, paramType), paramType);
-    }
-
-    <T> String queryNameFromAnnotation(final InjectionPoint ip) {
-        return ip.getAnnotated().getAnnotation(QueryName.class).value();
-    }
-
-    <T> String queryNameFromField(final InjectionPoint ip,
-            final Class<T> paramType) {
-        final String queryName = ip.getMember().getName();
-        return paramType.getSimpleName() + "." + queryName;
+        final InjectionPoint mockedIp = mock(InjectionPoint.class);
+        final Member mockedMember = mock(Member.class);
+        when(mockedIp.getMember()).thenReturn(mockedMember);
+        when(mockedMember.getName()).thenReturn("active", "inactive", "test");
+        assertEquals(tqf.queryNameFromField(mockedIp, Customer.class),
+                "Customer.active");
+        assertEquals(tqf.queryNameFromField(mockedIp, Product.class),
+                "Product.inactive");
+        assertEquals(tqf.queryNameFromField(mockedIp, String.class),
+                "String.test");
     }
 }
