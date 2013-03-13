@@ -39,7 +39,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import mgt.details.BeanDetailsController;
 import mgt.details.BeanDetailsInterceptorBinding;
-import org.jboss.solder.reflection.annotated.AnnotatedTypeBuilder;
+import org.apache.deltaspike.core.util.metadata.builder.AnnotatedTypeBuilder;
 
 public class BeanDetailsExtension implements Extension {
     <T> void processAnnotatedType(@Observes final ProcessAnnotatedType<T> pat) {
